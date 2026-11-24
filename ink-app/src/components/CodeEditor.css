@@ -1,0 +1,64 @@
+.ce {
+  flex: 1;
+  min-height: 320px;
+  overflow: auto;
+  background: var(--ec-papier);
+  font-family: var(--ec-font-code);
+  font-size: 15px;
+  line-height: 24px;
+  tab-size: 4;
+}
+.ce__grid { display: flex; min-width: max-content; min-height: 100%; }
+
+.ce__gutter {
+  flex: none;
+  position: sticky; left: 0; z-index: 2;
+  width: 48px;
+  padding: 10px 0 24px;
+  background: var(--ec-papier);
+  color: var(--ec-encre-3);
+  text-align: right;
+  user-select: none;
+}
+.ce__num { height: 24px; padding-right: 14px; border-left: 4px solid transparent; }
+.ce__num.is-current { color: var(--ec-encre); }
+
+.ce__code { position: relative; flex: 1 0 auto; }
+.ce__hl { padding: 10px 24px 24px 0; white-space: pre; color: var(--ec-encre); }
+.ce-line { height: 24px; }
+.ce-line--cursor { background: var(--ec-curseur); }
+.ce-line--error { background: var(--ec-tampon-ligne); }
+
+.ce__ta {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  margin: 0; padding: 10px 24px 24px 0;
+  border: 0; outline: none; resize: none; overflow: hidden;
+  background: transparent;
+  color: transparent;
+  caret-color: var(--ec-encre);
+  font: inherit; line-height: inherit; letter-spacing: normal;
+  white-space: pre; overflow-wrap: normal; word-break: normal;
+  tab-size: 4;
+}
+.ce__ta::selection { background: rgba(201, 138, 30, .32); color: transparent; }
+
+/* Coloration syntaxique */
+.sx-knot { color: var(--ec-sx-knot); }
+.sx-divert { color: var(--ec-sx-divert); }
+.sx-choice { color: var(--ec-sx-choice); }
+.sx-logic { color: var(--ec-sx-logic); }
+.sx-var { color: var(--ec-sx-var); }
+.sx-comment { color: var(--ec-sx-comment); }
+.sx-tag { color: var(--ec-sx-tag); }
+.sx-text { color: var(--ec-encre); }
+.sx-b { font-weight: 700; }
+.sx-i { font-style: italic; }
+
+/* Marques de l'analyste */
+.ce-mark { text-decoration-line: underline; text-underline-offset: 4px; text-decoration-thickness: 1.5px; }
+.ce-mark--syntaxe { text-decoration-style: wavy; text-decoration-color: var(--ec-tampon); }
+.ce-mark--coherence { text-decoration-style: wavy; text-decoration-color: var(--ec-lampe-filet); }
+.ce-mark--style { text-decoration-style: dotted; text-decoration-color: var(--ec-encre-bleue); }
+.ce-mark--coquille { text-decoration-style: dotted; text-decoration-color: var(--ec-encre-3); }
+.ce-mark--selected { background: var(--ec-lampe-fond); }

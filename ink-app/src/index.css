@@ -1,0 +1,421 @@
+/* ==========================================================================
+   En Clair — design system (tokens --ec-*)
+   Mode papier par défaut, mode nuit « la hutte » via [data-theme="nuit"].
+   ========================================================================== */
+
+:root {
+  --ec-bureau: #E6DCC6;        /* fond de l'application */
+  --ec-papier: #F7F2E6;        /* feuille, éditeur */
+  --ec-pelure: #EFE7D4;        /* panneaux, survols */
+  --ec-carton: #DDCCA6;        /* dossiers, onglets */
+  --ec-ruban: #EEE5D0;         /* ruban perforé, survol secondaire */
+  --ec-champ: #FBF8F0;         /* fond des champs */
+  --ec-filet: #CDBE9C;         /* bordures, filets */
+  --ec-filet-doux: #E2D7BE;
+  --ec-filet-fort: #A89A78;
+  --ec-encre: #1B2230;         /* texte principal */
+  --ec-encre-2: #545A63;       /* texte secondaire */
+  --ec-encre-3: #6B675A;       /* texte discret, numéros de ligne */
+  --ec-encre-corps: #3A404A;   /* paragraphes */
+  --ec-commande: #26302A;      /* barre de commande */
+  --ec-commande-survol: #3C4A40;
+  --ec-commande-encre: #EDE5D0;
+  --ec-commande-2: #B9B39E;
+  --ec-commande-filet: #4A5A4E;
+
+  --ec-tampon: #A3241C;        /* erreurs, rejet */
+  --ec-tampon-fond: #F3DCD5;
+  --ec-tampon-ligne: #F8E6E0;
+  --ec-lampe: #8A5200;         /* sélection, focus */
+  --ec-lampe-filet: #C98A1E;
+  --ec-lampe-fond: #F6E3B8;
+  --ec-lampe-encre: #7A4900;
+  --ec-curseur: #F2E8CC;
+  --ec-telegraphe: #2C6A3D;    /* validation */
+  --ec-telegraphe-survol: #23582F;
+  --ec-telegraphe-fond: #DCE8D6;
+  --ec-encre-bleue: #244C78;   /* information, logique ink */
+  --ec-encre-bleue-fond: #DCE4EE;
+
+  --ec-ok-fond: #2C6A3D;
+  --ec-ok-encre: #F7F2E6;
+  --ec-btn-fond: #26302A;
+  --ec-btn-encre: #F7F2E6;
+  --ec-desactive-fond: #D8CFBB;
+  --ec-desactive-encre: #6B675A;
+
+  /* Carte */
+  --ec-quadrillage: #ECE3CE;
+  --ec-trait: #3A404A;
+  --ec-noeud-filet: #8E8166;
+  --ec-fin-fond: #26302A;
+  --ec-fin-encre: #F7F2E6;
+  --ec-fin-encre-2: #CFC8B2;
+
+  /* Coloration syntaxique ink */
+  --ec-sx-knot: #8A2B1E;
+  --ec-sx-divert: #2C6A3D;
+  --ec-sx-choice: #8A5200;
+  --ec-sx-logic: #244C78;
+  --ec-sx-var: #6A3D62;
+  --ec-sx-comment: #6B675A;
+  --ec-sx-tag: #55633C;
+  --ec-sx-tag-filet: #A6AE86;
+
+  /* Constantes (identiques dans les deux modes) */
+  --ec-ambre: #E7AE4F;
+  --ec-ambre-encre: #1A1408;
+
+  /* Typographie */
+  --ec-font-titre: 'Libre Baskerville', Georgia, serif;
+  --ec-font-code: 'Courier Prime', 'Courier New', monospace;
+  --ec-font-label: 'Barlow Condensed', 'Arial Narrow', sans-serif;
+  --ec-font-ui: 'IBM Plex Sans', system-ui, sans-serif;
+
+  /* Espacements */
+  --ec-s-1: 4px;
+  --ec-s-2: 8px;
+  --ec-s-3: 12px;
+  --ec-s-4: 16px;
+  --ec-s-5: 24px;
+  --ec-s-6: 32px;
+  --ec-s-7: 48px;
+  --ec-s-8: 64px;
+
+  color-scheme: light;
+}
+
+[data-theme='nuit'] {
+  --ec-bureau: #121611;
+  --ec-papier: #1F241D;
+  --ec-pelure: #1A1F18;
+  --ec-carton: #2E2A20;
+  --ec-ruban: #262C23;
+  --ec-champ: #1A1F18;
+  --ec-filet: #3A4135;
+  --ec-filet-doux: #2C3229;
+  --ec-filet-fort: #4A5345;
+  --ec-encre: #E8E0CB;
+  --ec-encre-2: #B0AA94;
+  --ec-encre-3: #9A9580;
+  --ec-encre-corps: #CFC8B2;
+  --ec-commande: #0D100C;
+  --ec-commande-survol: #1C221A;
+  --ec-commande-encre: #E6DEC8;
+  --ec-commande-2: #9C9883;
+  --ec-commande-filet: #2F362C;
+
+  --ec-tampon: #E26A57;
+  --ec-tampon-fond: #3A1F1A;
+  --ec-tampon-ligne: #2E201B;
+  --ec-lampe: #E7AE4F;
+  --ec-lampe-filet: #E7AE4F;
+  --ec-lampe-fond: #3A2E17;
+  --ec-lampe-encre: #E7AE4F;
+  --ec-curseur: #2A2E21;
+  --ec-telegraphe: #8CC487;
+  --ec-telegraphe-survol: #A3D29F;
+  --ec-telegraphe-fond: #1E3021;
+  --ec-encre-bleue: #93B7E0;
+  --ec-encre-bleue-fond: #1D2733;
+
+  --ec-ok-fond: #8CC487;
+  --ec-ok-encre: #10200F;
+  --ec-btn-fond: #E7AE4F;
+  --ec-btn-encre: #1A1408;
+  --ec-desactive-fond: #2C3229;
+  --ec-desactive-encre: #9A9580;
+
+  --ec-quadrillage: #262C23;
+  --ec-trait: #B0AA94;
+  --ec-noeud-filet: #6E7563;
+  --ec-fin-fond: #0D100C;
+  --ec-fin-encre: #E8E0CB;
+  --ec-fin-encre-2: #B0AA94;
+
+  --ec-sx-knot: #EE9478;
+  --ec-sx-divert: #8CC487;
+  --ec-sx-choice: #E7AE4F;
+  --ec-sx-logic: #93B7E0;
+  --ec-sx-var: #CFA0C8;
+  --ec-sx-comment: #9A9580;
+  --ec-sx-tag: #B4BC8E;
+  --ec-sx-tag-filet: #5D6448;
+
+  color-scheme: dark;
+}
+
+/* ---------- Base ---------- */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body { margin: 0; }
+
+body {
+  background: var(--ec-bureau);
+  color: var(--ec-encre);
+  font-family: var(--ec-font-ui);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+a { color: var(--ec-encre-bleue); }
+a:hover { color: var(--ec-encre); }
+
+button { font: inherit; color: inherit; }
+button:not(:disabled) { cursor: pointer; }
+
+:focus-visible {
+  outline: 2px solid var(--ec-lampe-filet);
+  outline-offset: 2px;
+}
+
+.visually-hidden {
+  position: absolute; width: 1px; height: 1px; overflow: hidden;
+  clip: rect(0 0 0 0); white-space: nowrap;
+}
+
+.ec-mono { font-family: var(--ec-font-code); }
+.ec-serif { font-family: var(--ec-font-titre); }
+.ec-mute { color: var(--ec-encre-2); }
+
+/* Libellé en capitales condensées */
+.ec-label {
+  font-family: var(--ec-font-label);
+  font-weight: 600;
+  font-size: 12px;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--ec-encre-2);
+}
+.ec-label--strong { font-weight: 700; font-size: 13px; letter-spacing: .18em; color: var(--ec-encre); }
+
+/* Filet perforé */
+.ec-perfs {
+  height: 8px;
+  background-image: radial-gradient(circle, var(--ec-filet) 1.8px, transparent 2.3px);
+  background-size: 12px 8px;
+}
+
+/* ---------- Coque de l'application ---------- */
+
+.ec-app { min-height: 100vh; display: flex; flex-direction: column; }
+
+.ec-topbar {
+  background: var(--ec-commande);
+  color: var(--ec-commande-encre);
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 0 16px;
+  flex-wrap: wrap;
+}
+.ec-topbar__brand {
+  display: flex; align-items: center; gap: 10px;
+  background: none; border: 0; padding: 0;
+  color: var(--ec-commande-encre);
+  font-family: var(--ec-font-label); font-weight: 700; font-size: 17px; letter-spacing: .24em;
+}
+.ec-topbar__nav { display: flex; gap: 4px; align-self: stretch; flex-wrap: wrap; }
+.ec-topbar__tab {
+  display: flex; align-items: center;
+  padding: 0 12px; min-height: 48px;
+  background: none; border: 0; border-bottom: 3px solid transparent;
+  color: var(--ec-commande-2);
+  font-family: var(--ec-font-label); font-weight: 600; font-size: 14px; letter-spacing: .14em; text-transform: uppercase;
+}
+.ec-topbar__tab:hover:not(:disabled) { color: var(--ec-commande-encre); }
+.ec-topbar__tab[aria-current='page'] { color: var(--ec-commande-encre); border-bottom-color: var(--ec-ambre); }
+.ec-topbar__tab:disabled { opacity: .45; }
+.ec-topbar__file { display: flex; align-items: center; gap: 8px; font-family: var(--ec-font-code); font-size: 14px; color: var(--ec-commande-2); }
+.ec-topbar__dirty { width: 7px; height: 7px; border-radius: 50%; background: var(--ec-ambre); }
+.ec-topbar__actions { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+
+.ec-body { flex: 1; display: flex; flex-wrap: wrap; align-items: stretch; min-height: 0; }
+
+@media (min-width: 1100px) {
+  .ec-app--fixed { height: 100vh; }
+  .ec-app--fixed .ec-body { overflow: hidden; }
+  .ec-app--fixed .ec-scroll { overflow: auto; min-height: 0; }
+  .ec-app--fixed .ec-body > * { max-height: 100%; }
+}
+
+.ec-side {
+  flex: 1 1 280px; max-width: 100%;
+  background: var(--ec-pelure);
+  display: flex; flex-direction: column;
+}
+.ec-side--left { border-right: 1px solid var(--ec-filet); }
+.ec-side--right { border-left: 1px solid var(--ec-filet); }
+.ec-main { flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column; }
+
+/* ---------- Boutons ---------- */
+
+.ec-btn {
+  height: 36px; padding: 0 16px;
+  display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+  border-radius: 2px; border: 1px solid transparent;
+  font: 600 14px var(--ec-font-ui);
+  white-space: nowrap;
+  text-decoration: none;
+}
+.ec-btn--sm { height: 30px; padding: 0 12px; font-size: 13px; }
+.ec-btn--md { height: 32px; padding: 0 12px; font-size: 13px; }
+.ec-btn--lg { height: 44px; padding: 0 20px; font-size: 15px; }
+.ec-btn--xl { height: 40px; padding: 0 18px; }
+
+.ec-btn--primary { background: var(--ec-btn-fond); color: var(--ec-btn-encre); }
+.ec-btn--primary:hover:not(:disabled) { filter: brightness(1.18); }
+.ec-btn--secondary { background: transparent; color: var(--ec-encre); border-color: var(--ec-encre); font-weight: 500; }
+.ec-btn--secondary:hover:not(:disabled) { background: var(--ec-ruban); }
+.ec-btn--accept { background: var(--ec-ok-fond); color: var(--ec-ok-encre); }
+.ec-btn--accept:hover:not(:disabled) { background: var(--ec-telegraphe-survol); }
+.ec-btn--reject { background: transparent; color: var(--ec-tampon); border: 1.5px solid var(--ec-tampon); }
+.ec-btn--reject:hover:not(:disabled) { background: var(--ec-tampon-fond); }
+.ec-btn--quiet { background: transparent; color: var(--ec-encre); border-color: var(--ec-filet); font-weight: 500; }
+.ec-btn--quiet:hover:not(:disabled) { background: var(--ec-ruban); }
+.ec-btn--tool { background: transparent; color: var(--ec-encre); border-color: var(--ec-filet-fort); font-weight: 500; }
+.ec-btn--tool:hover:not(:disabled) { background: var(--ec-ruban); }
+.ec-btn--tool[aria-pressed='true'] { background: var(--ec-commande); color: var(--ec-btn-encre); border-color: var(--ec-commande); font-weight: 600; }
+.ec-btn--tool.ec-btn--lamp-toggle[aria-pressed='true'] { background: var(--ec-lampe-fond); color: var(--ec-lampe-encre); border-color: var(--ec-lampe-filet); }
+.ec-btn--link { background: transparent; border: 0; padding: 0 16px; color: var(--ec-encre); font-weight: 500; text-decoration: underline; text-underline-offset: 4px; }
+/* Barre de commande */
+.ec-btn--lamp { background: var(--ec-ambre); color: var(--ec-ambre-encre); }
+.ec-btn--lamp:hover:not(:disabled) { filter: brightness(1.08); }
+/* Action prête (ex. export une fois toutes les remarques traitées) */
+.ec-btn--ready { box-shadow: 0 0 0 2px var(--ec-commande), 0 0 0 4px var(--ec-ambre); }
+@media (prefers-reduced-motion: no-preference) {
+  .ec-btn--ready { animation: ec-ready 1.6s ease-out 2; }
+  @keyframes ec-ready {
+    0% { box-shadow: 0 0 0 2px var(--ec-commande), 0 0 0 4px var(--ec-ambre); }
+    50% { box-shadow: 0 0 0 2px var(--ec-commande), 0 0 0 9px rgba(231, 174, 79, .25); }
+    100% { box-shadow: 0 0 0 2px var(--ec-commande), 0 0 0 4px var(--ec-ambre); }
+  }
+}
+.ec-btn--chrome { background: transparent; color: var(--ec-commande-encre); border-color: var(--ec-commande-filet); font-weight: 500; }
+.ec-btn--chrome:hover:not(:disabled) { background: var(--ec-commande-survol); }
+
+.ec-btn:disabled { background: var(--ec-desactive-fond); color: var(--ec-desactive-encre); border-color: transparent; }
+.ec-btn--secondary:disabled, .ec-btn--reject:disabled, .ec-btn--quiet:disabled, .ec-btn--tool:disabled {
+  background: transparent; color: var(--ec-encre-3); border-color: var(--ec-filet);
+}
+.ec-btn--chrome:disabled { background: transparent; color: var(--ec-commande-2); border-color: var(--ec-commande-filet); opacity: .6; }
+
+.ec-kbd { font: 12px var(--ec-font-code); border: 1px solid currentColor; padding: 0 5px; border-radius: 2px; opacity: .9; }
+
+/* ---------- Champs ---------- */
+
+.ec-input {
+  height: 36px; padding: 0 10px;
+  background: var(--ec-champ); color: var(--ec-encre);
+  border: 1px solid var(--ec-filet-fort); border-radius: 2px;
+  font: 15px var(--ec-font-code);
+}
+.ec-input:focus { outline: none; border-color: var(--ec-lampe); box-shadow: 0 0 0 3px var(--ec-lampe-fond); }
+.ec-input--sm { height: 32px; font-size: 14px; border-color: var(--ec-filet); }
+
+/* ---------- Tampons & badges ---------- */
+
+.ec-stamp {
+  display: inline-block;
+  border: 1.5px solid currentColor; border-radius: 2px;
+  font-family: var(--ec-font-label); font-weight: 700; font-size: 12px; letter-spacing: .16em;
+  padding: 1px 8px;
+  white-space: nowrap;
+}
+.ec-stamp--dashed { border-style: dashed; }
+.ec-stamp--lg { border-width: 2px; font-size: 16px; letter-spacing: .2em; padding: 3px 12px; }
+.ec-stamp--sm { font-size: 11px; padding: 0 6px; }
+.ec-stamp--double {
+  border-width: 2.5px; font-size: 20px; letter-spacing: .24em; padding: 4px 14px; border-radius: 3px;
+  box-shadow: inset 0 0 0 2px var(--ec-papier), inset 0 0 0 3.5px currentColor;
+  background: var(--ec-papier);
+}
+
+.ec-cat-syntaxe { color: var(--ec-tampon); }
+.ec-cat-coherence { color: var(--ec-lampe); }
+.ec-cat-style { color: var(--ec-encre-bleue); }
+.ec-cat-coquille { color: var(--ec-encre-2); }
+
+.ec-badge {
+  display: inline-block;
+  font-family: var(--ec-font-label); font-weight: 600; font-size: 12px; letter-spacing: .14em; text-transform: uppercase;
+  padding: 3px 8px; border-radius: 2px; white-space: nowrap;
+}
+.ec-badge--sm { font-size: 11px; padding: 1px 6px; }
+.ec-badge--accepted { background: var(--ec-telegraphe-fond); color: var(--ec-telegraphe); }
+.ec-badge--pending { background: var(--ec-lampe-fond); color: var(--ec-lampe-encre); }
+.ec-badge--rejected { background: var(--ec-tampon-fond); color: var(--ec-tampon); }
+
+/* Pastille du classeur */
+.ec-pill {
+  font-family: var(--ec-font-label); font-weight: 700; font-size: 11px; letter-spacing: .12em;
+  padding: 1px 6px; border-radius: 2px; border: 1px solid currentColor;
+}
+.ec-pill--err { color: var(--ec-tampon); background: var(--ec-tampon-fond); }
+.ec-pill--warn { color: var(--ec-lampe); background: var(--ec-lampe-fond); }
+.ec-pill--fin { color: var(--ec-telegraphe); background: var(--ec-telegraphe-fond); }
+.ec-pill--orph { color: var(--ec-encre-2); border-style: dashed; }
+
+/* ---------- Panneaux ---------- */
+
+.ec-panel-head {
+  display: flex; justify-content: space-between; align-items: baseline; gap: 12px;
+  padding: 14px 16px 10px;
+  border-bottom: 1px solid var(--ec-filet);
+}
+.ec-card { background: var(--ec-papier); border: 1px solid var(--ec-filet); border-radius: 2px; }
+
+.ec-chip {
+  height: 28px; padding: 0 10px; border-radius: 2px;
+  border: 1px solid var(--ec-filet); background: transparent; color: var(--ec-encre);
+  font: 600 12px var(--ec-font-ui);
+}
+.ec-chip[aria-pressed='true'] { background: var(--ec-commande); color: var(--ec-commande-encre); border-color: var(--ec-commande); }
+
+/* Onglets de classeur */
+.ec-tabs { display: flex; gap: 2px; padding: 8px 12px 0; background: var(--ec-bureau); border-bottom: 1px solid var(--ec-filet); }
+.ec-tab {
+  padding: 7px 14px;
+  background: var(--ec-carton); color: var(--ec-encre-2);
+  border: 1px solid var(--ec-filet); border-bottom: 0; border-radius: 2px 2px 0 0;
+  font: 13px var(--ec-font-code);
+}
+.ec-tab[aria-selected='true'] {
+  background: var(--ec-papier); color: var(--ec-encre); font-weight: 700;
+  border-top: 3px solid var(--ec-lampe-filet); margin-bottom: -1px;
+}
+
+/* ---------- Télégrammes (toasts) ---------- */
+
+.ec-toasts {
+  position: fixed; right: 20px; bottom: 20px; z-index: 50;
+  display: flex; flex-direction: column; gap: 8px; max-width: min(520px, calc(100vw - 40px));
+}
+.ec-toast {
+  display: flex; gap: 12px; align-items: center;
+  background: #26302A; color: #F7F2E6;
+  padding: 12px 16px; border-radius: 2px;
+  box-shadow: 0 6px 18px rgba(27, 34, 48, .18);
+}
+.ec-toast__kind { font-family: var(--ec-font-label); font-weight: 700; font-size: 12px; letter-spacing: .16em; white-space: nowrap; }
+.ec-toast__kind--ok { color: #8CC487; }
+.ec-toast__kind--err { color: #F08B7A; }
+.ec-toast__kind--wait { color: #E7AE4F; }
+.ec-toast__msg { font-family: var(--ec-font-code); font-size: 14px; }
+.ec-toast__close { margin-left: auto; background: none; border: 0; color: #B9B39E; font-size: 16px; padding: 0 2px; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .ec-toast { animation: ec-toast-in .18s ease-out; }
+  @keyframes ec-toast-in { from { transform: translateY(8px); opacity: 0; } }
+}
+
+/* Lien d'action (bouton présenté comme un lien) */
+.ec-link {
+  background: none; border: 0; padding: 0; text-align: left;
+  color: var(--ec-encre-bleue); font-size: 14px;
+  text-decoration: underline; text-underline-offset: 3px;
+}
+.ec-link:hover { color: var(--ec-encre); }

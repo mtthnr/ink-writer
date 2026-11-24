@@ -1,0 +1,68 @@
+.map-side { flex: 1 1 256px; padding: 18px 16px; gap: 22px; }
+.map-legend { display: flex; flex-direction: column; gap: 10px; }
+.map-legend > div { display: flex; align-items: center; gap: 10px; font-size: 13px; }
+.map-swatch { width: 28px; height: 18px; background: var(--ec-papier); border: 1px solid var(--ec-noeud-filet); border-radius: 2px; flex: none; }
+.map-swatch.is-start { border: 2px solid var(--ec-encre); }
+.map-swatch.is-end { background: var(--ec-fin-fond); border-color: var(--ec-fin-fond); }
+.map-swatch.is-orphan { background: transparent; border: 1.5px dashed var(--ec-encre-2); }
+.map-swatch.is-broken { background: var(--ec-tampon-fond); border: 1.5px dashed var(--ec-tampon); }
+
+.map-anomalies { display: flex; flex-direction: column; gap: 10px; }
+.map-anomaly {
+  display: flex; flex-direction: column; gap: 4px; text-align: left;
+  padding: 10px 12px; background: var(--ec-papier); border: 1px solid var(--ec-filet); border-radius: 2px; color: var(--ec-encre);
+}
+.map-anomaly:hover { border-color: var(--ec-filet-fort); }
+.map-anomaly__tag { font-family: var(--ec-font-label); font-weight: 700; font-size: 12px; letter-spacing: .16em; }
+.map-anomaly__tag.is-red { color: var(--ec-tampon); }
+.map-anomaly__tag.is-grey { color: var(--ec-encre-2); }
+.map-anomaly__tag.is-amber { color: var(--ec-lampe); }
+.map-stats { margin-top: auto; font-size: 13px; line-height: 1.7; color: var(--ec-encre-2); }
+
+.map-main { min-height: 480px; }
+.map-toolbar {
+  display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+  padding: 10px 16px; border-bottom: 1px solid var(--ec-filet); background: var(--ec-pelure);
+}
+.map-zoom { margin-left: auto; display: flex; gap: 6px; align-items: center; }
+.map-zoom__btn { width: 32px; padding: 0; font-size: 16px; font-weight: 600; }
+
+.map-viewport {
+  flex: 1; min-height: 320px; overflow: auto; padding: 24px;
+  background-color: var(--ec-papier);
+  background-image: linear-gradient(var(--ec-quadrillage) 1px, transparent 1px), linear-gradient(90deg, var(--ec-quadrillage) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+.map-canvas { position: relative; transform-origin: 0 0; }
+.map-edges { position: absolute; inset: 0; overflow: visible; }
+.map-edge { fill: none; stroke: var(--ec-trait); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.map-edge.is-loop { stroke: var(--ec-lampe); stroke-dasharray: 5 4; }
+.map-edge.is-broken { stroke: var(--ec-tampon); stroke-dasharray: 5 4; }
+
+.map-node {
+  position: absolute;
+  display: flex; flex-direction: column; justify-content: center; align-items: flex-start; gap: 0;
+  padding: 8px 12px; text-align: left;
+  background: var(--ec-papier); border: 1px solid var(--ec-noeud-filet); border-radius: 2px;
+  font-size: 12px; line-height: 18px; color: var(--ec-encre-2);
+}
+.map-node b { font-family: var(--ec-font-code); font-size: 15px; color: var(--ec-encre); max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.map-node.is-stitch b { font-weight: 400; }
+.map-node.is-start { border: 2px solid var(--ec-encre); }
+.map-node.is-end { background: var(--ec-fin-fond); border-color: var(--ec-fin-fond); color: var(--ec-fin-encre-2); }
+.map-node.is-end b { color: var(--ec-fin-encre); }
+.map-node.is-orphan { background: transparent; border: 1.5px dashed var(--ec-encre-2); }
+.map-node.is-broken { background: var(--ec-tampon-fond); border: 1.5px dashed var(--ec-tampon); color: var(--ec-tampon); }
+.map-node.is-broken b { color: var(--ec-tampon); }
+.map-node.is-selected {
+  background: var(--ec-lampe-fond); border: 2px solid var(--ec-lampe-filet); color: var(--ec-lampe-encre);
+  box-shadow: 0 0 0 3px var(--ec-papier), 0 0 0 4px var(--ec-lampe-filet);
+}
+.map-node.is-selected b { color: var(--ec-encre); }
+.map-start-label { position: absolute; font-family: var(--ec-font-label); font-weight: 700; font-size: 12px; line-height: 16px; letter-spacing: .16em; color: var(--ec-encre); }
+
+.map-card {
+  display: flex; flex-wrap: wrap; gap: 32px; align-items: flex-start;
+  padding: 16px 20px; border-top: 1px solid var(--ec-filet); background: var(--ec-pelure);
+}
+.map-card__col { display: flex; flex-direction: column; gap: 4px; font-size: 13px; }
