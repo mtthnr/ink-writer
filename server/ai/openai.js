@@ -3,6 +3,7 @@ import { TASKS, buildCorrectionMessage, buildMessages } from './prompts.js';
 import { validateItems } from './validate.js';
 
 const API_URL = 'https://api.openai.com/v1/chat/completions';
+const CALL_TIMEOUT_MS = 90_000; // au-delà, l'appel est abandonné (le front attend au plus 200 s)
 
 function fail(message, status = 502) {
   return Object.assign(new Error(message), { status });
@@ -10,11 +11,20 @@ function fail(message, status = 502) {
 
 /** Un appel au modèle avec le format de réponse imposé. Renvoie le JSON parsé. */
 async function callModel(messages, { apiKey, model }) {
-  const response = await fetch(API_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
-    body: JSON.stringify({ model, messages, response_format: RESPONSE_FORMAT }),
-  });
+  let response;
+  try {
+    response = await fetch(API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
+      body: JSON.stringify({ model, messages, response_format: RESPONSE_FORMAT }),
+      signal: AbortSignal.timeout(CALL_TIMEOUT_MS),
+    });
+  } catch (err) {
+    if (err.name === 'TimeoutError' || err.name === 'AbortError') {
+      throw fail(`OpenAI n’a pas répondu en ${CALL_TIMEOUT_MS / 1000} s, opération abandonnée.`, 504);
+    }
+    throw fail(`OpenAI injoignable : ${err.message}`, 502);
+  }
 
   const data = await response.json().catch(() => ({}));
   if (!response.ok) throw fail(data.error?.message || `Erreur OpenAI (${response.status})`);

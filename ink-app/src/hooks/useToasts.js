@@ -10,7 +10,9 @@ export function useToasts() {
   const notify = useCallback((kind, message, { ttl = kind === 'err' ? 9000 : 4500, replace } = {}) => {
     seq.current += 1;
     const id = replace ?? seq.current;
-    setToasts((list) => [...list.filter((t) => t.id !== id), { id, kind, message }].slice(-4));
+    // Un télégramme « en cours » sans durée de vie est une opération active : il affiche un indicateur.
+    const busy = kind === 'wait' && !ttl;
+    setToasts((list) => [...list.filter((t) => t.id !== id), { id, kind, message, busy }].slice(-4));
     if (ttl) setTimeout(() => dismiss(id), ttl);
     return id;
   }, [dismiss]);

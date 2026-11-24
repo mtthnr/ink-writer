@@ -49,6 +49,19 @@ export function Rotor({ state = 'idle', size = 44 }) {
   );
 }
 
+/**
+ * Indicateur de chargement compact, dans le style du rotor : cercle gradué + arc ambre.
+ * L'arc ne tourne que si l'utilisateur n'a pas demandé de réduire les animations.
+ */
+export function Spinner({ size = 14, label = 'Chargement' }) {
+  return (
+    <svg className="ec-spinner" width={size} height={size} viewBox="0 0 16 16" role="img" aria-label={label}>
+      <circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" strokeOpacity=".3" strokeWidth="2" />
+      <circle className="ec-spinner__arc" cx="8" cy="8" r="6" fill="none" stroke="#E7AE4F" strokeWidth="2" strokeLinecap="round" strokeDasharray="12 38" />
+    </svg>
+  );
+}
+
 /** Indice de confiance (cadran). */
 export function ConfidenceGauge({ value }) {
   const conf = Math.max(0, Math.min(100, Math.round(value ?? 0)));
@@ -84,6 +97,7 @@ export function Toasts({ toasts, onDismiss }) {
     <div className="ec-toasts">
       {toasts.map((t) => (
         <div key={t.id} className="ec-toast" role={t.kind === 'err' ? 'alert' : 'status'}>
+          {t.kind === 'wait' && t.busy && <Spinner size={16} label="En cours" />}
           <span className={`ec-toast__kind ec-toast__kind--${t.kind}`}>{TOAST_KIND[t.kind]}</span>
           <span className="ec-toast__msg">{t.message}</span>
           <button type="button" className="ec-toast__close" aria-label="Fermer" onClick={() => onDismiss(t.id)}>×</button>

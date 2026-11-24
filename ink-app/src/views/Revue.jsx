@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { CategoryStamp, ConfidenceGauge, StatusBadge } from '../components/Stamps.jsx';
+import { CategoryStamp, ConfidenceGauge, Spinner, StatusBadge } from '../components/Stamps.jsx';
 import './Revue.css';
 
 const pad2 = (n) => String(n).padStart(2, '0');
@@ -16,14 +16,15 @@ function linkedPieces(item, parsed) {
     .filter(Boolean);
 }
 
-export default function Revue({ items, parsed, analysis, selectedUid, onSelect, onAccept, onReject, onAnalyse, jumpTo, navigate }) {
+export default function Revue({ items, parsed, analysis, selectedUid, onSelect, onAccept, onReject, onAnalyse, jumpTo, navigate, applyingUid }) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState('');
-  const [busy, setBusy] = useState(false);
   const advanceTimer = useRef(null);
 
   const index = Math.max(0, items.findIndex((i) => i.uid === selectedUid));
   const item = items[index];
+  const busy = Boolean(applyingUid); // une application est en cours (sur cette pièce ou une autre)
+  const applyingThis = Boolean(item) && applyingUid === item.uid;
 
   useEffect(() => () => clearTimeout(advanceTimer.current), []);
 
@@ -41,22 +42,20 @@ export default function Revue({ items, parsed, analysis, selectedUid, onSelect, 
 
   const accept = async () => {
     if (!item || busy || item.status !== 'pending') return;
-    setBusy(true);
     const ok = await onAccept(item.uid, editing ? draft : undefined);
-    setBusy(false);
     if (ok) {
       setEditing(false);
       advanceFrom(index);
     }
   };
   const reject = () => {
-    if (!item || item.status !== 'pending') return;
+    if (!item || busy || item.status !== 'pending') return;
     onReject(item.uid);
     setEditing(false);
     advanceFrom(index);
   };
   const toggleEdit = () => {
-    if (!item?.info?.found || item.status !== 'pending') return;
+    if (!item?.info?.found || busy || item.status !== 'pending') return;
     if (editing) accept();
     else {
       setDraft(item.info.after);
@@ -126,7 +125,9 @@ export default function Revue({ items, parsed, analysis, selectedUid, onSelect, 
               <button type="button" className={`rv-piece${q.uid === item.uid ? ' is-current' : ''}`} aria-current={q.uid === item.uid ? 'true' : undefined} onClick={() => select(q.uid)}>
                 <span className="rv-piece__top">
                   <CategoryStamp category={q.category} size="sm" tilt={false} />
-                  <StatusBadge status={q.status} small />
+                  {q.uid === applyingUid
+                    ? <span className="ec-badge ec-badge--sm ec-badge--pending" style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}><Spinner size={12} label="Application en cours" /> Application</span>
+                    : <StatusBadge status={q.status} small />}
                 </span>
                 <span className="rv-piece__title">{q.title}</span>
                 <span className="ec-mono ec-mute" style={{ fontSize: 12 }}>{q.where}</span>
@@ -208,10 +209,16 @@ export default function Revue({ items, parsed, analysis, selectedUid, onSelect, 
         </section>
 
         <div className="rv-actions">
-          <button type="button" className="ec-btn ec-btn--accept ec-btn--lg" onClick={accept} disabled={busy || item.status !== 'pending' || shown?.found === false}>
-            {busy ? 'Application…' : 'Accepter'} <kbd className="ec-kbd">A</kbd>
+          <button
+            type="button"
+            className="ec-btn ec-btn--accept ec-btn--lg"
+            onClick={accept}
+            disabled={busy || item.status !== 'pending' || shown?.found === false}
+            aria-busy={applyingThis}
+          >
+            {applyingThis ? <><Spinner size={16} label="Application en cours" /> Application…</> : <>Accepter <kbd className="ec-kbd">A</kbd></>}
           </button>
-          <button type="button" className="ec-btn ec-btn--reject ec-btn--lg" onClick={reject} disabled={item.status !== 'pending'}>
+          <button type="button" className="ec-btn ec-btn--reject ec-btn--lg" onClick={reject} disabled={busy || item.status !== 'pending'}>
             Rejeter <kbd className="ec-kbd">R</kbd>
           </button>
           <button
@@ -220,10 +227,15 @@ export default function Revue({ items, parsed, analysis, selectedUid, onSelect, 
             aria-pressed={editing}
             style={editing ? { background: 'var(--ec-lampe-fond)' } : undefined}
             onClick={toggleEdit}
-            disabled={item.status !== 'pending' || !item.info?.found}
+            disabled={busy || item.status !== 'pending' || !item.info?.found}
           >
             {editing ? 'Valider la modification' : 'Modifier'} <kbd className="ec-kbd">M</kbd>
           </button>
+          {busy && !applyingThis && (
+            <span className="ec-mute" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, fontSize: 13 }}>
+              <Spinner label="Application en cours" /> Une autre pièce est en cours d’application…
+            </span>
+          )}
           <button type="button" className="ec-btn ec-btn--link ec-btn--lg" style={{ marginLeft: 'auto' }} onClick={next}>
             Pièce suivante →
           </button>

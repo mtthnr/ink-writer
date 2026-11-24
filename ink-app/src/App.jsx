@@ -27,11 +27,19 @@ Il était une fois…
 const CATEGORY_ORDER = { syntaxe: 0, coherence: 1, coquille: 2, style: 3 };
 const plural = (n, word) => `${n} ${word}${n > 1 ? 's' : ''}`;
 
+/** Termine une phrase par un point si elle n'a pas déjà de ponctuation finale. */
+const sentence = (s) => {
+  const t = String(s ?? '').trim();
+  return !t || /[.!?…)]$/.test(t) ? t : `${t}.`;
+};
+
 function compileFailureMessage(compile) {
-  const e = compile.errors[0];
-  if (!e) return 'Compilation interrompue STOP';
-  return `Compilation interrompue${e.line ? ` ligne ${e.line}` : ''} STOP ${e.message} STOP`;
+  const e = compile?.errors?.[0];
+  if (!e) return 'Compilation interrompue.';
+  return `Compilation interrompue${e.line ? ` ligne ${e.line}` : ''} : ${sentence(e.message)}`;
 }
+
+const failureMessage = (r) => (r.stage === 'compile' ? compileFailureMessage(r.compile) : sentence(r.error || 'Erreur inconnue'));
 
 function registryStamp(compile, analysis) {
   if (compile?.errors?.length) return { label: `${plural(compile.errors.length, 'ERREUR')}`, tone: 'red' };
@@ -47,6 +55,8 @@ export default function App() {
   const [doc, setDoc] = useState(null); // { id, name, source, dirty, savedAt }
   const [analysis, setAnalysis] = useState({ status: 'idle', items: [], at: null, error: null });
   const [selectedUid, setSelectedUid] = useState(null);
+  const [applyingUid, setApplyingUid] = useState(null); // item dont les corrections sont en cours d'application
+  const applyingRef = useRef(null); // verrou synchrone contre les doubles clics
   const [focus, setFocus] = useState(null); // { line, nonce } : saut dans l'éditeur
   const { toasts, notify, dismiss } = useToasts();
   const openInputRef = useRef(null);
@@ -94,7 +104,7 @@ export default function App() {
   const openFile = useCallback(async (file) => {
     if (!file) return;
     if (!/\.(ink|txt)$/i.test(file.name)) {
-      notify('err', `${file.name} STOP seuls les fichiers .ink sont pris en charge STOP`);
+      notify('err', `${file.name} : seuls les fichiers .ink sont pris en charge.`);
       return;
     }
     openDoc({ id: `fichier:${file.name}`, name: file.name, source: await file.text() });
@@ -115,7 +125,7 @@ export default function App() {
     a.download = doc.name;
     a.click();
     URL.revokeObjectURL(url);
-    notify('ok', `${doc.name} exporté STOP`);
+    notify('ok', `${doc.name} exporté.`);
   }, [doc, notify]);
 
   // Enregistrement local (registre du navigateur), en différé.
@@ -145,48 +155,55 @@ export default function App() {
   const analyse = useCallback(async () => {
     if (!doc) return;
     if (!compile.fresh) {
-      notify('wait', 'Compilation en cours STOP réessayez dans un instant STOP');
+      notify('wait', 'Compilation en cours, réessayez dans un instant.');
       return;
     }
     if (compile.error) {
-      notify('err', `${compile.error} STOP`);
+      notify('err', sentence(compile.error));
       return;
     }
     // Garde-fou : jamais d'appel IA sur un fichier qui ne compile pas.
     if (!compiled.ok) {
-      notify('err', `${compileFailureMessage(compiled)} analyse annulée STOP`);
+      notify('err', `${compileFailureMessage(compiled)} Analyse annulée.`);
       return;
     }
     setAnalysis((a) => ({ ...a, status: 'running', error: null }));
-    const waitId = notify('wait', 'Analyse du dossier lancée STOP suggestions et cohérence STOP', { ttl: 0 });
+    const waitId = notify('wait', 'Analyse du dossier en cours : suggestions et cohérence…', { ttl: 0 });
     const payload = { source: doc.source, fileName: doc.name };
     const tasks = ['suggest', 'check_consistency'];
-    const responses = await Promise.all(tasks.map((task) => runInkTask({ ...payload, task })));
-    dismiss(waitId);
+    try {
+      const responses = await Promise.all(tasks.map((task) => runInkTask({ ...payload, task })));
+      const received = [];
+      const failures = [];
+      responses.forEach((r, i) => {
+        if (r.ok && Array.isArray(r.result?.items)) {
+          logAiResponse(tasks[i], r.result);
+          logValidation(tasks[i], r.validation);
+          received.push(...r.result.items.map((it) => ({ ...it, uid: `${r.result.task}-${it.id}`, task: r.result.task, status: 'pending' })));
+        } else {
+          logApiFailure(tasks[i], { ...payload, task: tasks[i] }, r);
+          failures.push(r.ok ? 'Réponse du serveur incomplète.' : failureMessage(r));
+        }
+      });
+      received.sort((a, b) => (CATEGORY_ORDER[a.category] ?? 9) - (CATEGORY_ORDER[b.category] ?? 9) || b.confidence - a.confidence);
 
-    const received = [];
-    const failures = [];
-    responses.forEach((r, i) => {
-      if (r.ok) {
-        logAiResponse(tasks[i], r.result);
-        logValidation(tasks[i], r.validation);
-        received.push(...r.result.items.map((it) => ({ ...it, uid: `${r.result.task}-${it.id}`, task: r.result.task, status: 'pending' })));
-      } else {
-        logApiFailure(tasks[i], { ...payload, task: tasks[i] }, r);
-        failures.push(r.stage === 'compile' ? compileFailureMessage(r.compile) : `${r.error} STOP`);
+      if (failures.length === responses.length) {
+        setAnalysis({ status: 'error', items: [], at: null, error: failures[0] });
+        notify('err', failures[0]);
+        return;
       }
-    });
-    received.sort((a, b) => (CATEGORY_ORDER[a.category] ?? 9) - (CATEGORY_ORDER[b.category] ?? 9) || b.confidence - a.confidence);
-
-    if (failures.length === responses.length) {
-      setAnalysis({ status: 'error', items: [], at: null, error: failures[0] });
-      notify('err', failures[0]);
-      return;
+      setAnalysis({ status: 'done', items: received, at: Date.now(), knotsRead: parsed.knots.length, error: failures[0] ?? null });
+      setSelectedUid(received[0]?.uid ?? null);
+      notify('ok', `${plural(received.length, 'remarque')} ${received.length > 1 ? 'reçues' : 'reçue'}.`);
+      if (failures.length) notify('err', `Analyse partielle : ${failures[0]}`);
+    } catch (err) {
+      // Erreur inattendue (bug, réponse malformée) : on sort toujours de l'état « en cours ».
+      console.error('[En Clair] Erreur inattendue pendant l’analyse', err);
+      setAnalysis({ status: 'error', items: [], at: null, error: 'Erreur inattendue pendant l’analyse.' });
+      notify('err', 'Erreur inattendue pendant l’analyse (détails dans la console).');
+    } finally {
+      dismiss(waitId);
     }
-    setAnalysis({ status: 'done', items: received, at: Date.now(), knotsRead: parsed.knots.length, error: failures[0] ?? null });
-    setSelectedUid(received[0]?.uid ?? null);
-    notify('ok', `${plural(received.length, 'remarque')} ${received.length > 1 ? 'reçues' : 'reçue'} STOP`);
-    if (failures.length) notify('err', `Analyse partielle STOP ${failures[0]}`);
   }, [doc, compile.fresh, compile.error, compiled, parsed, notify, dismiss]);
 
   // `applied` garde l'avant / après au moment de l'acceptation (le texte d'origine disparaît ensuite du fichier).
@@ -194,63 +211,90 @@ export default function App() {
     setAnalysis((a) => ({ ...a, items: a.items.map((i) => (i.uid === uid ? { ...i, status, ...(applied && { applied }) } : i)) }));
   }, []);
 
-  /** Accepte un item : applique ses edits (ou les fait concrétiser par l'IA s'il n'en a pas). */
+  /**
+   * Accepte un item : applique ses edits (ou les fait concrétiser par l'IA s'il n'en a pas).
+   * Une seule application à la fois ; l'indicateur de chargement (`applyingUid`) est toujours
+   * libéré à la fin, quelle que soit l'issue (succès, erreur, exception, délai dépassé).
+   */
   const acceptItem = useCallback(async (uid, customAfter) => {
     const item = items.find((i) => i.uid === uid);
-    if (!item || !doc) return false;
-    let edits = item.edits;
-    let origin = 'item';
-
-    if (customAfter != null && item.info?.found) {
-      edits = [{ operation: 'replace', knot: item.knot ?? null, target: item.info.before, content: customAfter }];
-      origin = 'modification manuelle';
-    } else if (!edits.length) {
-      origin = 'apply_suggestion';
-      const waitId = notify('wait', 'Concrétisation de la suggestion STOP', { ttl: 0 });
-      const payload = {
-        task: 'apply_suggestion',
-        source: sourceRef.current,
-        fileName: doc.name,
-        suggestion: { type: 'suggestion', id: item.id, category: item.category, confidence: item.confidence, title: item.title, description: item.description, knot: item.knot ?? item.knots?.[0] ?? null, edits: [] },
-      };
-      const r = await runInkTask(payload);
-      dismiss(waitId);
-      if (!r.ok) {
-        logApiFailure('apply_suggestion', payload, r);
-        notify('err', `${r.stage === 'compile' ? compileFailureMessage(r.compile) : `${r.error} STOP`} détails dans la console STOP`);
-        return false;
-      }
-      logAiResponse('apply_suggestion', r.result);
-      logValidation('apply_suggestion', r.validation);
-      edits = r.result.items.flatMap((m) => m.edits);
-      if (!edits.length) {
-        const discarded = r.validation?.discarded?.length;
-        console.warn(`[En Clair] apply_suggestion n'a renvoyé aucun edit applicable pour « ${item.title} »`, r.result);
-        notify('err', `${discarded ? 'Aucune modification applicable : l’IA n’a pas su corriger ses edits' : 'Aucune modification proposée'} STOP détails dans la console STOP`, { ttl: 14000 });
-        return false;
-      }
-    }
-
-    const res = applyEdits(sourceRef.current, edits);
-    if (!res.ok) {
-      const diag = logApplyFailure({ item, edits, failure: res, origin });
-      const where = edits.length > 1 ? ` edit ${res.index + 1}/${edits.length}` : '';
-      notify('err', `${diag?.cause ?? res.error}${where} STOP correction non appliquée STOP détails dans la console (F12) STOP`, { ttl: 14000 });
+    if (!item || !doc || item.status !== 'pending') return false;
+    if (applyingRef.current) {
+      notify('wait', 'Une correction est déjà en cours d’application.');
       return false;
     }
-    logApplySuccess(item, edits, origin);
-    let applied = item.info?.found ? item.info : null;
-    if (applied && customAfter != null) applied = { ...applied, pre: '', del: applied.before, ins: customAfter, post: '', after: customAfter };
-    sourceRef.current = res.source;
-    updateSource(res.source);
-    setItemStatus(uid, 'accepted', applied);
-    notify('ok', `${plural(edits.length, 'correction')} ${edits.length > 1 ? 'appliquées' : 'appliquée'} STOP`);
-    return true;
+    applyingRef.current = uid;
+    setApplyingUid(uid);
+    let waitId = null;
+
+    try {
+      let edits = item.edits;
+      let origin = 'item';
+
+      if (customAfter != null && item.info?.found) {
+        edits = [{ operation: 'replace', knot: item.knot ?? null, target: item.info.before, content: customAfter }];
+        origin = 'modification manuelle';
+      } else if (!edits.length) {
+        origin = 'apply_suggestion';
+        waitId = notify('wait', `Concrétisation de « ${item.title} » par l’analyste…`, { ttl: 0 });
+        const payload = {
+          task: 'apply_suggestion',
+          source: sourceRef.current,
+          fileName: doc.name,
+          suggestion: { type: 'suggestion', id: item.id, category: item.category, confidence: item.confidence, title: item.title, description: item.description, knot: item.knot ?? item.knots?.[0] ?? null, edits: [] },
+        };
+        const r = await runInkTask(payload);
+        dismiss(waitId);
+        waitId = null;
+        if (!r.ok || !Array.isArray(r.result?.items)) {
+          logApiFailure('apply_suggestion', payload, r);
+          notify('err', `${r.ok ? 'Réponse du serveur incomplète.' : failureMessage(r)} Détails dans la console.`);
+          return false;
+        }
+        logAiResponse('apply_suggestion', r.result);
+        logValidation('apply_suggestion', r.validation);
+        edits = r.result.items.flatMap((m) => m.edits ?? []);
+        if (!edits.length) {
+          const discarded = r.validation?.discarded?.length;
+          console.warn(`[En Clair] apply_suggestion n'a renvoyé aucun edit applicable pour « ${item.title} »`, r.result);
+          notify('err', `${discarded ? 'Aucune modification applicable : l’IA n’a pas su corriger ses edits.' : 'Aucune modification proposée.'} Détails dans la console.`, { ttl: 14000 });
+          return false;
+        }
+      }
+
+      const res = applyEdits(sourceRef.current, edits);
+      if (!res.ok) {
+        const diag = logApplyFailure({ item, edits, failure: res, origin });
+        const where = edits.length > 1 ? ` (edit ${res.index + 1}/${edits.length})` : '';
+        notify('err', `${(diag?.cause ?? res.error).replace(/[.\s]+$/, '')}${where}. Correction non appliquée, détails dans la console (F12).`, { ttl: 14000 });
+        return false;
+      }
+      logApplySuccess(item, edits, origin);
+      let applied = item.info?.found ? item.info : null;
+      if (applied && customAfter != null) applied = { ...applied, pre: '', del: applied.before, ins: customAfter, post: '', after: customAfter };
+      sourceRef.current = res.source;
+      updateSource(res.source);
+      setItemStatus(uid, 'accepted', applied);
+      notify('ok', `${plural(edits.length, 'correction')} ${edits.length > 1 ? 'appliquées' : 'appliquée'}.`);
+      return true;
+    } catch (err) {
+      console.error(`[En Clair] Erreur inattendue pendant l’application de « ${item.title} »`, err);
+      notify('err', 'Erreur inattendue pendant l’application (détails dans la console).');
+      return false;
+    } finally {
+      if (waitId) dismiss(waitId);
+      applyingRef.current = null;
+      setApplyingUid(null);
+    }
   }, [items, doc, notify, dismiss, updateSource, setItemStatus]);
 
   const rejectItem = useCallback((uid) => setItemStatus(uid, 'rejected'), [setItemStatus]);
 
   const acceptAllSafe = useCallback(() => {
+    if (applyingRef.current) {
+      notify('wait', 'Une correction est déjà en cours d’application.');
+      return;
+    }
     let current = sourceRef.current;
     const accepted = [];
     let failed = 0;
@@ -268,10 +312,10 @@ export default function App() {
     }
     if (failed) {
       const s = failed > 1 ? 's' : '';
-      notify('err', `${failed} correction${s} sûre${s} non appliquée${s} STOP détails dans la console STOP`);
+      notify('err', `${failed} correction${s} sûre${s} non appliquée${s}, détails dans la console.`);
     }
     if (!accepted.length) {
-      if (!failed) notify('wait', 'Aucune correction sûre en attente STOP');
+      if (!failed) notify('wait', 'Aucune correction sûre en attente.');
       return;
     }
     sourceRef.current = current;
@@ -281,7 +325,7 @@ export default function App() {
       ...a,
       items: a.items.map((i) => (accepted.includes(i.uid) ? { ...i, status: 'accepted', applied: infoByUid.get(i.uid)?.found ? infoByUid.get(i.uid) : undefined } : i)),
     }));
-    notify('ok', `${plural(accepted.length, 'correction')} ${accepted.length > 1 ? 'appliquées' : 'appliquée'} STOP`);
+    notify('ok', `${plural(accepted.length, 'correction')} ${accepted.length > 1 ? 'appliquées' : 'appliquée'}.`);
   }, [items, notify, updateSource]);
 
   /* ---------- Raccourcis globaux ---------- */
@@ -333,7 +377,7 @@ export default function App() {
       subtitle: doc && `${doc.name} · rapport de l’analyste`,
       actions: (
         <>
-          <button type="button" className="ec-btn ec-btn--chrome ec-btn--md" onClick={acceptAllSafe} disabled={!pendingCount}>
+          <button type="button" className="ec-btn ec-btn--chrome ec-btn--md" onClick={acceptAllSafe} disabled={!pendingCount || Boolean(applyingUid)}>
             Tout accepter (sûres ≥ 90 %)
           </button>
           {allTreated ? (
@@ -361,7 +405,7 @@ export default function App() {
     },
   }[current];
 
-  const shared = { doc, source, parsed, graph, compile, compiled, items, analysis, player, navigate, jumpTo, notify };
+  const shared = { doc, source, parsed, graph, compile, compiled, items, analysis, player, navigate, jumpTo, notify, applyingUid };
 
   return (
     <div className={`ec-app${current === 'accueil' ? '' : ' ec-app--fixed'}`}>
