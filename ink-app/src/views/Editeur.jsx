@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import CodeEditor from '../components/CodeEditor.jsx';
-import { CategoryStamp, Rotor } from '../components/Stamps.jsx';
+import { CategoryStamp, Rotor, Spinner } from '../components/Stamps.jsx';
 import { CATEGORIES } from '../lib/categories.js';
 import './Editeur.css';
 
@@ -103,7 +103,7 @@ function KnotTree({ parsed, graph, compiled, activeOwner, jumpTo, navigate }) {
 
 /* ------------------------------------------------------------------ */
 
-function AnalystPanel({ items, analysis, compiled, selectedUid, onSelect, onAccept, onReject, jumpTo, navigate, onAnalyse }) {
+function AnalystPanel({ items, analysis, compiled, selectedUid, onSelect, onAccept, onReject, jumpTo, navigate, onAnalyse, applyingUid }) {
   const [cat, setCat] = useState('all');
   const pending = items.filter((i) => i.status === 'pending');
   const shown = pending.filter((i) => cat === 'all' || i.category === cat);
@@ -181,12 +181,13 @@ function AnalystPanel({ items, analysis, compiled, selectedUid, onSelect, onAcce
                 <button
                   type="button"
                   className="ec-btn ec-btn--accept ec-btn--sm"
-                  disabled={item.info && !item.info.found}
+                  disabled={(item.info && !item.info.found) || Boolean(applyingUid)}
+                  aria-busy={applyingUid === item.uid}
                   onClick={(e) => { e.stopPropagation(); onAccept(item.uid); }}
                 >
-                  Accepter
+                  {applyingUid === item.uid ? <><Spinner label="Application en cours" /> Application…</> : 'Accepter'}
                 </button>
-                <button type="button" className="ec-btn ec-btn--quiet ec-btn--sm" onClick={(e) => { e.stopPropagation(); onReject(item.uid); }}>
+                <button type="button" className="ec-btn ec-btn--quiet ec-btn--sm" disabled={applyingUid === item.uid} onClick={(e) => { e.stopPropagation(); onReject(item.uid); }}>
                   Ignorer
                 </button>
               </div>
@@ -219,7 +220,7 @@ function ItemDiff({ item }) {
 
 /* ------------------------------------------------------------------ */
 
-export default function Editeur({ doc, source, parsed, graph, compile, compiled, items, analysis, focus, onChange, selectedUid, onSelect, onAccept, onReject, onAnalyse, jumpTo, navigate }) {
+export default function Editeur({ doc, source, parsed, graph, compile, compiled, items, analysis, focus, onChange, selectedUid, onSelect, onAccept, onReject, onAnalyse, jumpTo, navigate, applyingUid }) {
   const [cursor, setCursor] = useState({ line: 1, col: 1 });
 
   const errors = useMemo(() => compiled?.errors ?? [], [compiled]);
@@ -319,6 +320,7 @@ export default function Editeur({ doc, source, parsed, graph, compile, compiled,
         jumpTo={jumpTo}
         navigate={navigate}
         onAnalyse={onAnalyse}
+        applyingUid={applyingUid}
       />
     </div>
   );

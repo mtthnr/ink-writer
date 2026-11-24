@@ -298,6 +298,8 @@ button:not(:disabled) { cursor: pointer; }
 .ec-btn--chrome:hover:not(:disabled) { background: var(--ec-commande-survol); }
 
 .ec-btn:disabled { background: var(--ec-desactive-fond); color: var(--ec-desactive-encre); border-color: transparent; }
+/* Bouton dont l'action est en cours : garde sa couleur (l'indicateur reste lisible) */
+.ec-btn--accept[aria-busy='true']:disabled { background: var(--ec-ok-fond); color: var(--ec-ok-encre); cursor: progress; }
 .ec-btn--secondary:disabled, .ec-btn--reject:disabled, .ec-btn--quiet:disabled, .ec-btn--tool:disabled {
   background: transparent; color: var(--ec-encre-3); border-color: var(--ec-filet);
 }
@@ -386,6 +388,14 @@ button:not(:disabled) { cursor: pointer; }
 .ec-tab[aria-selected='true'] {
   background: var(--ec-papier); color: var(--ec-encre); font-weight: 700;
   border-top: 3px solid var(--ec-lampe-filet); margin-bottom: -1px;
+}
+
+/* ---------- Indicateur de chargement ---------- */
+
+.ec-spinner { flex: none; vertical-align: middle; }
+@media (prefers-reduced-motion: no-preference) {
+  .ec-spinner__arc { transform-origin: 8px 8px; animation: ec-spin .9s linear infinite; }
+  @keyframes ec-spin { to { transform: rotate(360deg); } }
 }
 
 /* ---------- Télégrammes (toasts) ---------- */
